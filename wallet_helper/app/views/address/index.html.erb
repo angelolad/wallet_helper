@@ -1,0 +1,55 @@
+<%= stylesheet_link_tag "styles" %>
+<div class ="header-color-block">
+  <div class = "main-container">
+    <header class ="header-address">
+      <div>
+        <h1 class ="header-text">CARDANO <span style="font-weight: bold">WALLET HELPER</span></h1>
+      </div>
+      <div>
+      </div>
+    </header>
+    <div class ="address-block">
+      <div class ="address-header-row">
+        <h5>Address </h5>
+        <div class ="line-block"></div>
+      </div>
+      <div class ="address-info">
+        <div class = "address-row">
+          <p>Address</p>
+          <p><%=@address_param %></p>
+        </div>
+        <div class = "address-row">
+          <p>Mint Transactions</p>
+          <p><%=@tx_mints.count %></p>
+        </div>
+      </div>
+    </div>
+    <div class ="address-block">
+      <div class ="address-header-row">
+        <h5>Transactions </h5>
+        <div class ="line-block"></div>
+      </div>
+      <div class ="address-info">
+        <%@tx_mints.each do |tx|%>
+          <div class = "address-row">
+            <p>Transaction:</p>
+            <p><%=tx[:hash]%></p>
+          </div>
+          <div class = "address-row">
+            <p>Received Time:</p>
+            <p><%=tx[:block_time]%></p>
+          </div>
+          <div class = "address-row">
+            <p>Assets Minted: </p>
+            <div class ="assets-column">
+              <%tx[:asset].each do |asset|%>
+                <p><%=asset%></p>
+              <%end%>
+            </div>
+          </div>
+          <div class="transaction-line-block"></div>
+        <%end%>
+      </div>
+    </div>
+  </div>
+</div>

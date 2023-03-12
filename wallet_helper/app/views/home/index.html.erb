@@ -1,1 +1,31 @@
-<h1>Home</h1>
+<%= stylesheet_link_tag "styles" %>
+<div class ="main-container">
+  <div>
+    <header class ="header-home">
+      <div></div>
+      <div>
+        <h1 class ="header-text">CARDANO <span style="font-weight: bold">WALLET HELPER</span></h1>
+        <p class="header-subtext">Find minted transactions with ease.</p>
+      </div>
+    </header>
+  </div>
+  <div class ="search-container">
+    <div>
+      <p><span style="font-weight:bold">SEARCH</span></p>
+    </div>
+    <%= form_with url:"/address", method: :get do |form|%>
+      <div class ="search-bar-row">
+        <div class ="search-bar-container">
+          <%= form.text_field :search, class: 'search-bar', 
+        placeholder: "Enter address eg: addr1qx5j4nes9akdpp2u2r4xe3s5hewhpdy07lyfctj82upx4y39c5xthhfg5xeltq8s..."%>
+        </div>
+        <div>
+          <%= form.submit "Search",class: 'search-button'%>
+        </div>
+      </div>
+    <%end%>
+    <% if flash[:notice] %>
+      <div class="notice"><%= flash[:notice] %></div>
+    <% end %>
+  </div>
+</div>
