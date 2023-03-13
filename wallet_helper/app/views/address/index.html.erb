@@ -5,7 +5,8 @@
       <div>
         <h1 class ="header-text">CARDANO <span style="font-weight: bold">WALLET HELPER</span></h1>
       </div>
-      <div>
+      <div class ="search-address-container">
+        <%= render "layouts/search_form"%>
       </div>
     </header>
     <div class ="address-block">
@@ -17,6 +18,10 @@
         <div class = "address-row">
           <p>Address</p>
           <p><%=@address_param %></p>
+        </div>
+        <div class = "address-row">
+          <p>Date range </p>
+          <p><%=@date_range%></p>
         </div>
         <div class = "address-row">
           <p>Mint Transactions</p>
@@ -33,7 +38,9 @@
         <%@tx_mints.each do |tx|%>
           <div class = "address-row">
             <p>Transaction:</p>
-            <p><%=tx[:hash]%></p>
+            <a href="https://cardanoscan.io/transaction/<%=tx[:hash]%>"  target="_blank" rel="noopener noreferrer">
+              <p><%=tx[:hash]%></p>
+            </a>
           </div>
           <div class = "address-row">
             <p>Received Time:</p>

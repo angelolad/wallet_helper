@@ -10,7 +10,22 @@ class AddressController < ApplicationController
     if params[:search].empty?
       redirect_to root_path
     else
+      date_format = "%m-%d-%Y %H:%M"
+      date_format_param = "%Y-%m-%d"
+      if params[:from_date].empty? || params[:to_date].empty?
+        from_date = DateTime.strptime("01-01-2018 00:00", date_format)
+        to_date = DateTime.now().strftime(date_format).to_date
+        @date_range = "All"
+      else
+        from_date = DateTime.strptime(params[:from_date], date_format_param)
+        to_date = DateTime.strptime(params[:to_date], date_format_param)
+        @date_range = "#{from_date.strftime(date_format)} - #{to_date.strftime(date_format)}"
+      end
+
+      puts "From date: #{from_date}"
+      puts "To date: #{to_date}"
       @address_param = params[:search]
+
       #Step 2: Using the address get every transaction
       tx_hashes = search_address_transactions[:body].map { |t| t[:tx_hash] }
 
@@ -18,14 +33,21 @@ class AddressController < ApplicationController
       @tx_mints = []
       tx_hashes.each do |tx|
         tx_detail = search_transaction(tx)[:body].slice(:hash, :block_time, :asset_mint_or_burn_count)
-        if tx_detail[:asset_mint_or_burn_count] > 0
+
+        #convert unix time to block time
+        tx_detail[:block_time] = Time.at(tx_detail[:block_time]).strftime(date_format)
+        date_time = DateTime.strptime(tx_detail[:block_time], date_format)
+        if tx_detail[:asset_mint_or_burn_count] > 0 && date_time.to_date.between?(from_date, to_date)
           @tx_mints.push(tx_detail)
         end
       end
 
       format_mint_transaction
 
-      puts @tx_mints
+      #Delete any transactions not an nft
+      @tx_mints.delete_if { |tx| tx[:asset][0].nil? }
+
+      #puts @tx_mints
     end
   end
 
@@ -34,9 +56,6 @@ class AddressController < ApplicationController
   def format_mint_transaction
     @asset_names = []
     @tx_mints.each do |tx|
-      #convert unix time to block time
-      tx[:block_time] = Time.at(tx[:block_time]).strftime("%Y-%m-%d %H:%M:%S")
-
       #retrieve only the assets minted into the wallet
       outputs = (search_transaction_utxos(tx[:hash])[:body][:outputs].select {
         |assets|
@@ -49,16 +68,20 @@ class AddressController < ApplicationController
           |asset|
           asset["unit"]
         }
-      }.flatten.delete_if { |x| x == "lovelace" }
+      }.flatten.delete_if { |unit| unit == "lovelace" }
 
       tx[:asset] = tx[:asset].map { |asset|
-        search_specific_assets(asset)[:body][:onchain_metadata]["name"]
+        asset_name = search_specific_assets(asset)[:body]
+        #If no metadata name is present, transaction minted something other then an nft
+        if asset_name[:onchain_metadata].present?
+          asset_name[:onchain_metadata]["name"]
+        end
       }
     end
   end
 
   def search_address_transactions
-    @blockfrost.get_address_transactions(params[:search], params = { count: 7, order: "desc" })
+    @blockfrost.get_address_transactions(params[:search], params = { count: 20, order: "desc" })
   end
 
   def search_transaction(tx)

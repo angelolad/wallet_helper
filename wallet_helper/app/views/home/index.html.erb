@@ -10,20 +10,7 @@
     </header>
   </div>
   <div class ="search-container">
-    <div>
-      <p><span style="font-weight:bold">SEARCH</span></p>
-    </div>
-    <%= form_with url:"/address", method: :get do |form|%>
-      <div class ="search-bar-row">
-        <div class ="search-bar-container">
-          <%= form.text_field :search, class: 'search-bar', 
-        placeholder: "Enter address eg: addr1qx5j4nes9akdpp2u2r4xe3s5hewhpdy07lyfctj82upx4y39c5xthhfg5xeltq8s..."%>
-        </div>
-        <div>
-          <%= form.submit "Search",class: 'search-button'%>
-        </div>
-      </div>
-    <%end%>
+    <%= render "layouts/search_form"%>
     <% if flash[:notice] %>
       <div class="notice"><%= flash[:notice] %></div>
     <% end %>
